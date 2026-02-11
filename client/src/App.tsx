@@ -1,71 +1,123 @@
-import { useEffect, useState } from 'react';
-import { api } from './utils/api';
+// import { useEffect, useState, useCallback } from 'react';
+// import { api } from './utils/api';
+// import AddTransaction from './components/AddTransaction';
 
-// Define the shape of our data (Typescript!)
-interface Transaction {
-  id: number;
-  amount: string;
-  category: string;
-  description: string;
-  date: string;
-  type: 'income' | 'expense';
-}
+// interface Transaction {
+//   id: number;
+//   amount: string;
+//   category: string;
+//   description: string;
+//   date: string;
+//   type: 'income' | 'expense';
+// }
+
+// function App() {
+//   const [transactions, setTransactions] = useState<Transaction[]>([]);
+//   const [loading, setLoading] = useState(true);
+
+//   // Wrap loadData in useCallback so it can be passed to child components
+//   const loadData = useCallback(async () => {
+//     try {
+//       const data = await api.get('/transactions');
+//       setTransactions(data);
+//     } catch (e) {
+//       console.error("Failed to fetch", e);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     loadData();
+//   }, [loadData]);
+
+//   if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+
+//   return (
+//     <div className="p-8 bg-gray-50 min-h-screen text-gray-900">
+//       <div className="max-w-4xl mx-auto">
+//         <h1 className="text-3xl font-bold mb-6">Clarity Dashboard</h1>
+        
+//         {/* Pass loadData as a refresh callback */}
+//         <AddTransaction onRefresh={loadData} />
+        
+//         {/* Transaction List */}
+//         <div className="bg-white rounded-lg shadow overflow-hidden">
+//           <table className="min-w-full">
+//             <thead className="bg-gray-100 border-b">
+//               <tr>
+//                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
+//                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
+//                 <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Amount</th>
+//               </tr>
+//             </thead>
+//             <tbody className="divide-y divide-gray-200">
+//               {transactions.length === 0 ? (
+//                 <tr>
+//                   <td colSpan={3} className="px-6 py-10 text-center text-gray-500">
+//                     No transactions found. Add your first one above!
+//                   </td>
+//                 </tr>
+//               ) : (
+//                 transactions.map((t) => (
+//                   <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+//                     <td className="px-6 py-4">{t.description || 'No description'}</td>
+//                     <td className="px-6 py-4">
+//                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+//                         {t.category}
+//                       </span>
+//                     </td>
+//                     <td className={`px-6 py-4 text-right font-bold ${
+//                       t.type === 'income' ? 'text-green-600' : 'text-red-600'
+//                     }`}>
+//                       {t.type === 'income' ? '+' : '-'}${Number(t.amount).toFixed(2)}
+//                     </td>
+//                   </tr>
+//                 ))
+//               )}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+// src/App.tsx
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+
+// Protected Route Component
+const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
 
 function App() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch Data on Load
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await api.get('/transactions');
-        setTransactions(data);
-      } catch (e) {
-        console.error("Failed to fetch", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Clarity Dashboard</h1>
-      
-      {/* Transaction List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left">Description</th>
-              <th className="px-6 py-3 text-left">Category</th>
-              <th className="px-6 py-3 text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id} className="border-t">
-                <td className="px-6 py-4">{t.description}</td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                    {t.category}
-                  </span>
-                </td>
-                <td className={`px-6 py-4 text-right font-bold ${
-                  t.type === 'income' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  ${Number(t.amount).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route 
+            path="/" 
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } 
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
