@@ -44,7 +44,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ transactions, onBack }
       // 2. Format Rows
       const rows = data.map(t => [
           t.id,
-          format(new Date(t.date), 'yyyy-MM-dd HH:mm:ss'),
+          format(new Date(t.date), 'yyyy-MM-dd'),
           t.type,
           t.category,
           t.amount.toString(),
@@ -111,7 +111,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ transactions, onBack }
       
       <NeuCard className="p-8 text-center mt-4">
           <p className="text-neu-text text-sm mb-4">Need an older report?</p>
-          <NeuButton>Request Archive</NeuButton>
+          {/* Archive feature removed */}
       </NeuCard>
     </div>
   );

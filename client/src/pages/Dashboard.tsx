@@ -6,7 +6,7 @@ import { CircularProgress } from '../components/CircularProgress';
 import { AddTransactionWizard } from '../components/AddTransactionWizard';
 import { AnalyticsView } from '../components/AnalyticsView';
 import { ReportsView } from '../components/ReportsView';
-import { Plus, TrendingUp, TrendingDown, Bell, Search, Filter, X, Calendar, Tag, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Search, Filter, X, Calendar, Tag, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -18,6 +18,7 @@ interface DashboardProps {
 type ViewState = 'dashboard' | 'analytics' | 'reports';
 
 const ITEMS_PER_PAGE = 5;
+const CATEGORIES_PER_PAGE = 4;
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -28,6 +29,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
+  const [categoryPage, setCategoryPage] = useState(1);
 
   useEffect(() => {
     loadData();
@@ -35,18 +37,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
   const loadData = async () => {
     const data = await api.getTransactions();
-    setTransactions(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    // Convert amounts to numbers (backend returns them as strings from Postgres DECIMAL)
+    const normalized = data.map(t => ({
+      ...t,
+      amount: Number(t.amount) || 0
+    }));
+    setTransactions(normalized.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   };
 
   const summary = useMemo<TransactionSummary>(() => {
     return transactions.reduce(
       (acc, curr) => {
+        const amount = Number(curr.amount) || 0;
         if (curr.type === 'income') {
-          acc.income += curr.amount;
-          acc.balance += curr.amount;
+          acc.income += amount;
+          acc.balance += amount;
         } else {
-          acc.expense += curr.amount;
-          acc.balance -= curr.amount;
+          acc.expense += amount;
+          acc.balance -= amount;
         }
         return acc;
       },
@@ -55,7 +63,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   }, [transactions]);
 
   const budgetHealth = summary.income > 0 ? Math.min(100, Math.round(((summary.income - summary.expense) / summary.income) * 100)) : 0;
-  const categories = ['All', 'Food', 'Transport', 'Utilities', 'Shopping', 'Salary'];
+  const categories = ['All', 'Food', 'Transport', 'Utilities', 'Shopping', 'Salary', 'Entertainment', 'Health', 'Education'];
+
+  // Category Pagination
+  const totalCategoryPages = Math.ceil(categories.length / CATEGORIES_PER_PAGE);
+  const currentCategories = useMemo(() => {
+    const start = (categoryPage - 1) * CATEGORIES_PER_PAGE;
+    return categories.slice(start, start + CATEGORIES_PER_PAGE);
+  }, [categoryPage]);
 
   // Filter & Pagination Logic
   const filteredTransactions = useMemo(() => {
@@ -106,10 +121,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         <div className="flex items-center gap-4">
           <NeuButton variant="icon" className="hidden md:flex">
             <Search size={20} />
-          </NeuButton>
-          <NeuButton variant="icon" className="relative">
-            <Bell size={20} />
-            <span className="absolute top-3 right-3 w-2 h-2 bg-neu-danger rounded-full border border-neu-base"></span>
           </NeuButton>
           <NeuButton variant="default" className="hidden md:flex text-xs h-10 px-4" onClick={onLogout}>
             Logout
@@ -176,21 +187,48 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
             </NeuButton>
           </div>
 
-          {/* Categories Pill List */}
-          <div className="flex gap-4 overflow-x-auto pb-6 pt-4 px-6 -mx-6 no-scrollbar">
-            {categories.map(cat => (
-              <button 
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap outline-none ${
-                  activeFilter === cat 
-                    ? 'shadow-neu-pressed text-neu-primary scale-[0.98]' 
-                    : 'shadow-neu-flat text-neu-text hover:text-neu-dark hover:scale-[1.02]'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Categories Pill List with Pagination */}
+          <div className="flex items-center gap-2 px-6 -mx-6">
+            <button 
+              onClick={() => setCategoryPage(p => Math.max(1, p - 1))}
+              disabled={categoryPage === 1}
+              className="p-1.5 rounded-full text-neu-text hover:text-neu-primary disabled:opacity-20 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            
+            <div className="flex gap-4 overflow-hidden flex-1 py-4">
+              {currentCategories.map(cat => (
+                <button 
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
+                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap outline-none ${
+                    activeFilter === cat 
+                      ? 'shadow-neu-pressed text-neu-primary scale-[0.98]' 
+                      : 'shadow-neu-flat text-neu-text hover:text-neu-dark hover:scale-[1.02]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setCategoryPage(p => Math.min(totalCategoryPages, p + 1))}
+              disabled={categoryPage === totalCategoryPages}
+              className="p-1.5 rounded-full text-neu-text hover:text-neu-primary disabled:opacity-20 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+            
+            <div className="flex gap-1 ml-2">
+              {Array.from({ length: totalCategoryPages }, (_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${categoryPage === i + 1 ? 'bg-neu-primary w-3' : 'bg-neu-text/30'}`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Paginated List Container */}
