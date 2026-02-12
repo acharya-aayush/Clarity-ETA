@@ -1,0 +1,5 @@
+{
+  "name": "Clarity Expense Tracker",
+  "description": "A production-ready expense tracker featuring a strict Neumorphic (Soft UI) design system, Recharts visualization, and a mockable API layer.",
+  "requestFramePermissions": []
+}

@@ -114,33 +114,70 @@ app.delete('/transactions/:id', auth, async (req, res) => {
 //Signup Route
 app.post('/signup', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, full_name } = req.body;
+    
+    // Validation
+    if (!username || !password || !full_name) {
+      return res.status(400).json({ error: 'Missing required fields: username, password, full_name' });
+    }
+    
+    // Store username in lowercase for case-insensitive login
+    const normalizedUsername = username.toLowerCase().trim();
+    
     const hashed = await bcrypt.hash(password, 10);
     const user = await pool.query(
-      `INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *`,
-      [username, hashed]
+      `INSERT INTO users (username, password, full_name) VALUES ($1, $2, $3) RETURNING id, username, full_name, created_at`,
+      [normalizedUsername, hashed, full_name]
     );
-    res.json(user.rows[0]);
+    
+    // Generate token like login does
+    const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET as string);
+    const { password: _, ...userWithoutPassword } = user.rows[0];
+    res.json({ token, user: userWithoutPassword });
   } catch (err) {
     console.error((err as Error).message);
-    res.status(500).send('Server Error');
+    if ((err as any).code === '23505') {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    res.status(500).json({ error: 'Server Error' });
   }
 });
 //login Route
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    // Normalize username to lowercase for case-insensitive comparison
+    const normalizedUsername = username.toLowerCase().trim();
     const user = await pool.query(
-      `SELECT * FROM users WHERE username=$1`,
-      [username]
+      `SELECT * FROM users WHERE LOWER(username)=$1`,
+      [normalizedUsername]
     );
-    if (!user.rows.length) return res.status(400).send('Invalid credentials');
+    if (!user.rows.length) return res.status(400).json({ error: 'Invalid credentials' });
     const valid = await bcrypt.compare(password, user.rows[0].password);
-    if (!valid) return res.status(400).send('Invalid credentials');
+    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET as string);
-    res.json({ token });
+    
+    // Return token and user info (without password)
+    const { password: _, ...userWithoutPassword } = user.rows[0];
+    res.json({ token, user: userWithoutPassword });
   } catch (err) {
     console.error((err as Error).message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+// Get current user info
+app.get('/user/me', auth, async (req, res) => {
+  try {
+    const userId = (req as AuthenticatedRequest).user?.userId;
+    const user = await pool.query(
+      `SELECT id, username, full_name, created_at FROM users WHERE id=$1`,
+      [userId]
+    );
+    if (!user.rows.length) return res.status(404).json({ error: 'User not found' });
+    res.json(user.rows[0]);
+  } catch (err) {
+    console.error((err as Error).message);
+    res.status(500).json({ error: 'Server Error' });
   }
 });
