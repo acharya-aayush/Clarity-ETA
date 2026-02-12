@@ -11,7 +11,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://clarity-eta-frontend-93onz2fpq-memestar2k4-6131s-projects.vercel.app',
+    'http://localhost:3001',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // JWT Auth Middleware 
