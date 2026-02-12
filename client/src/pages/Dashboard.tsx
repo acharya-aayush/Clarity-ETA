@@ -18,7 +18,7 @@ interface DashboardProps {
 type ViewState = 'dashboard' | 'analytics' | 'reports';
 
 const ITEMS_PER_PAGE = 5;
-const CATEGORIES_PER_PAGE = 4;
+const CATEGORIES_PER_PAGE = 3;
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -197,15 +197,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
               <ChevronLeft size={16} />
             </button>
             
-            <div className="flex gap-4 overflow-hidden flex-1 py-4">
+            <div className="flex gap-3 overflow-hidden flex-1 py-4 justify-center">
               {currentCategories.map(cat => (
                 <button 
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap outline-none ${
+                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap outline-none flex-shrink-0 ${
                     activeFilter === cat 
                       ? 'shadow-neu-pressed text-neu-primary scale-[0.98]' 
-                      : 'shadow-neu-flat text-neu-text hover:text-neu-dark hover:scale-[1.02]'
+                      : 'bg-neu-light text-neu-text hover:text-neu-dark hover:scale-[1.02]'
                   }`}
                 >
                   {cat}
