@@ -4,7 +4,9 @@ import pool from './db';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -35,31 +37,33 @@ const auth = (req: express.Request, res: express.Response, next: express.NextFun
 app.post('/transactions', auth, async (req, res) => {
   try {
     const userId = (req as AuthenticatedRequest).user?.userId;
-const { amount, type, category, description, date } = req.body;
-const newTransaction = await pool.query(
-  `INSERT INTO transactions (user_id, amount, type, category, description, date) 
-   VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-  [userId, amount, type, category, description, date]
-);
+    const { amount, type, category, description, date } = req.body;
+    
+    // Validation
+    if (!userId) {
+      return res.status(401).send('User not authenticated');
+    }
+    if (!amount || !type || !category) {
+      return res.status(400).send('Missing required fields');
+    }
+    
+    const transactionDate = date || new Date().toISOString().split('T')[0];
+    
+    const newTransaction = await pool.query(
+      `INSERT INTO transactions (user_id, amount, type, category, description, date) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [userId, amount, type, category, description || '', transactionDate]
+    );
 
     res.json(newTransaction.rows[0]);
   } catch (err) {
-    console.error((err as Error).message);
-    res.status(500).send('Server Error');
+    console.error('Error adding transaction:', err);
+    res.status(500).json({ error: 'Failed to add transaction', details: (err as Error).message });
   }
 });
 
+// GET: Only get MY transactions
 app.get('/transactions', auth, async (req, res) => {
-  try {
-    const allTransactions = await pool.query('SELECT * FROM transactions');
-    res.json(allTransactions.rows);
-  } catch (err) {
-    console.error((err as Error).message);
-    res.status(500).send('Server Error');
-  }
-});
-  // GET: Only get MY transactions
-  app.get('/transactions', auth, async (req, res) => {
     try {
       const userId = (req as AuthenticatedRequest).user?.userId;
       const allTransactions = await pool.query(
@@ -94,19 +98,8 @@ app.put('/transactions/:id', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-//Delete Transaction
+// DELETE: Delete only MY transaction
 app.delete('/transactions/:id', auth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    await pool.query(`DELETE FROM transactions WHERE id=$1`, [id]);
-    res.json({ message: 'Transaction deleted' });
-  } catch (err) {
-    console.error((err as Error).message);
-    res.status(500).send('Server Error');
-  }
-});
-  // DELETE: Delete only MY transaction
-  app.delete('/transactions/:id', auth, async (req, res) => {
     try {
       const { id } = req.params;
       const userId = (req as AuthenticatedRequest).user?.userId;
