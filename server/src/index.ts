@@ -22,7 +22,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// JWT Auth Middleware 
+// JWT Auth Middleware s
 interface AuthenticatedRequest extends express.Request {
   user?: { userId: number };
 }
