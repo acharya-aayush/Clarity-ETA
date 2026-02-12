@@ -13,6 +13,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: [
+    'https://clarity-eta-frontend.vercel.app/',
     'https://clarity-eta-frontend-93onz2fpq-memestar2k4-6131s-projects.vercel.app',
     'http://localhost:3001',
     'http://localhost:3000'
