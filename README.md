@@ -2,6 +2,11 @@
 
 A modern expense tracking application with authentication and analytics.
 
+## Live Demo
+
+**Frontend**: [https://clarity-eta-frontend.vercel.app](https://clarity-eta-frontend.vercel.app)  
+**Backend API**: [https://clarity-eta-backend.vercel.app](https://clarity-eta-backend.vercel.app)
+
 ## Prerequisites
 
 - Node.js (v18 or higher)
