@@ -39,13 +39,16 @@ export const Signup: React.FC<SignupProps> = ({ onLogin, onNavigateToLogin }) =>
 
       <NeuCard className="w-full max-w-md p-10 flex flex-col gap-8 relative z-10 shadow-neu-xl">
         <div className="flex items-center gap-4">
-            <NeuButton variant="icon" onClick={onNavigateToLogin} className="w-10 h-10 p-0">
-                <ArrowLeft size={20} />
-            </NeuButton>
-            <div>
+            <div className="w-12 h-12 rounded-full shadow-neu-flat flex items-center justify-center overflow-hidden flex-shrink-0">
+              <img src="/logo.png" alt="Clarity Logo" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1">
                 <h1 className="text-2xl font-bold text-neu-dark tracking-tight">Create Account</h1>
                 <p className="text-neu-text text-sm">Join Clarity today</p>
             </div>
+            <NeuButton variant="icon" onClick={onNavigateToLogin} className="w-10 h-10 p-0 flex-shrink-0">
+                <ArrowLeft size={20} />
+            </NeuButton>
         </div>
 
         {error && (

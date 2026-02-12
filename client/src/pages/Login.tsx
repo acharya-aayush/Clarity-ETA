@@ -38,10 +38,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onNavigateToSignup }) => 
 
       <NeuCard className="w-full max-w-md p-10 flex flex-col gap-8 relative z-10 shadow-neu-xl">
         <div className="text-center space-y-2">
-          <div className="w-20 h-20 mx-auto rounded-full shadow-neu-flat flex items-center justify-center mb-6 text-neu-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-10 h-10">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
+          <div className="w-20 h-20 mx-auto rounded-full shadow-neu-flat flex items-center justify-center mb-6 overflow-hidden">
+            <img src="/logo.png" alt="Clarity Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-neu-dark tracking-tight">Clarity</h1>
           <p className="text-neu-text text-sm">Sign in with your username</p>
@@ -87,19 +85,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onNavigateToSignup }) => 
           </NeuButton>
         </form>
 
-        <div className="space-y-4 text-center">
-            <div className="text-center">
-            <span className="text-xs text-neu-text">New here? </span>
-            <button onClick={onNavigateToSignup} className="text-xs font-bold text-neu-primary hover:underline">
-                Create an Account
-            </button>
-            </div>
-            
-            <div className="py-3 px-4 rounded-xl bg-neu-base shadow-neu-pressed-sm inline-block">
-            {/* <p className="text-[10px] text-neu-text uppercase font-bold tracking-widest mb-1">Cheat Code</p> */}
-            <p className="text-xs text-neu-dark font-mono">user: demo</p>
-            <p className="text-xs text-neu-dark font-mono">pass: password</p>
-            </div>
+        <div className="text-center">
+          <span className="text-xs text-neu-text">New here? </span>
+          <button onClick={onNavigateToSignup} className="text-xs font-bold text-neu-primary hover:underline">
+            Create an Account
+          </button>
         </div>
       </NeuCard>
     </div>
