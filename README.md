@@ -1,6 +1,24 @@
 # Clarity - Expense Tracker
 
-A modern expense tracking application with authentication and analytics.
+This project was built as a coding assignment for a software engineering selection process. The goal was to create a personal expense tracking app—Clarity—that helps users understand and manage their finances better, with a focus on clean code, usability, and a modern UI.
+
+Clarity lets users securely sign up, log in, and manage their income and expenses. You can add, edit, and delete transactions, filter by category, and view a dashboard with analytics and charts. The app is fully responsive, works on both desktop and mobile, and is deployed live on Vercel with a PostgreSQL (Neon) backend.
+
+**What I am Proud Of:**
+- **Neumorphic Design System**: A custom-built component library with a cohesive, modern aesthetic using soft shadows and subtle gradients
+- **Smart Category Pagination**: Dynamic category filtering that adapts from 4 to 3 items per view for better mobile responsiveness
+- **Production-Ready Deployment**: Full stack deployed on Vercel with proper CORS configuration, environment variable handling, and serverless architecture
+- **Real Database Integration**: PostgreSQL (Neon) with proper type safety, DECIMAL handling for currency, and user isolation
+- **Advanced Features**: CSV export for reports, transaction analytics with charts, responsive design, and case-insensitive login
+
+**If I Had More Time:**
+- Implement forgot password mechanism with email reset tokens
+- Add budget goals and spending alerts
+- Support recurring transactions and recurring bills
+- Multi-currency support with real-time exchange rates
+- Mobile app using React Native
+- Data visualization improvements with more chart types
+- **AI-powered Budgeting**: Analyze your income and spending habits to automatically suggest a personalized budget plan, identify unnecessary expenses, and help you save more each month.
 
 ## Live Demo
 
@@ -57,12 +75,22 @@ CREATE TABLE transactions (
 
 **4. Configure environment variables**
 
-Create `server/.env`:
+Copy `server/.env.example` to `server/.env` and update with your actual values:
+```bash
+cp server/.env.example server/.env
 ```
-DATABASE_URL=your_postgresql_connection_string
-JWT_SECRET=your_secret_key
+
+Then edit `server/.env`:
+```
+DATABASE_URL=postgresql://your_neon_user:your_password@your_neon_host/neondb?sslmode=require
+JWT_SECRET=generate_a_random_secret_with_openssl_rand_-base64_32
 PORT=5000
 ```
+
+**Get Neon Database:**
+1. Sign up at [neon.tech](https://neon.tech)
+2. Create a new database
+3. Copy the connection string to `DATABASE_URL`
 
 **5. Run the application**
 
