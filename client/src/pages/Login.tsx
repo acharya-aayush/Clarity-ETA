@@ -39,7 +39,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onNavigateToSignup }) => 
       <NeuCard className="w-full max-w-md p-10 flex flex-col gap-8 relative z-10 shadow-neu-xl">
         <div className="text-center space-y-2">
           <div className="w-20 h-20 mx-auto rounded-full shadow-neu-flat flex items-center justify-center mb-6 overflow-hidden">
-            <img src="/logo.png" alt="Clarity Logo" className="w-full h-full object-cover" />
+            <img src="/logo.webp" alt="Clarity Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-neu-dark tracking-tight">Clarity</h1>
           <p className="text-neu-text text-sm">Sign in with your username</p>
@@ -76,7 +76,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onNavigateToSignup }) => 
               <NeuToggle checked={remember} onChange={setRemember} />
               <span className="text-xs font-semibold text-neu-text">Remember me</span>
             </div>
-            <a href="#" className="text-xs font-bold text-neu-primary hover:underline">Forgot Password?</a>
+            {/* <a href="#" className="text-xs font-bold text-neu-primary hover:underline">Forgot Password?</a> */}
           </div>
 
           <NeuButton type="submit" variant="primary" className="w-full py-4 text-lg shadow-neu-flat" disabled={loading}>
