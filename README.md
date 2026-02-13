@@ -1,5 +1,4 @@
 # Clarity - Expense Tracker
-
 This project was built as a coding assignment for a software engineering selection process. The goal was to create a personal expense tracking app—Clarity—that helps users understand and manage their finances better, with a focus on clean code, usability, and a modern UI.
 
 Clarity lets users securely sign up, log in, and manage their income and expenses. You can add, edit, and delete transactions, filter by category, and view a dashboard with analytics and charts. The app is fully responsive, works on both desktop and mobile, and is deployed live on Vercel with a PostgreSQL (Neon) backend.
